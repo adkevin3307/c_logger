@@ -12,7 +12,29 @@
 
 #define STRLEN 1024
 
-#define _log(format, ...) fprintf(stderr, "[logger] " format, ##__VA_ARGS__);
+static FILE* output = NULL;
+
+void _log(const char* format, ...)
+{
+    if (output == NULL) {
+        char* monitor_env = getenv("MONITOR");
+
+        if (monitor_env) {
+            FILE* (*origin_fopen)(const char*, const char*) = dlsym(RTLD_NEXT, "fopen");
+
+            output = (*origin_fopen)(monitor_env, "w");
+        }
+        else {
+            output = stderr;
+        }
+    }
+
+    va_list arg;
+
+    va_start(arg, format);
+    vfprintf(output, format, arg);
+    va_end(arg);
+}
 
 void _get_real_path(const char* path, char real_path[])
 {
