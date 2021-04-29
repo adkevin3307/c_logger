@@ -15,8 +15,11 @@
 
 static FILE* output = NULL;
 
-void _log(const char* format, ...)
+void _log(const char* partial_format, ...)
 {
+    char format[STRLEN] = { '\0' };
+    sprintf(format, "[logger] %s", partial_format);
+
     if (output == NULL) {
         char* monitor_env = getenv("MONITOR");
 
@@ -32,7 +35,7 @@ void _log(const char* format, ...)
 
     va_list arg;
 
-    va_start(arg, format);
+    va_start(arg, partial_format);
     vfprintf(output, format, arg);
     va_end(arg);
 }
@@ -88,7 +91,7 @@ int chmod(const char* path, mode_t mode)
     origin_function = dlsym(RTLD_NEXT, "chmod");
     int result = (*origin_function)(path, mode);
 
-    _log("[logger] chmod(\"%s\", %o) = %d\n", real_path, mode, result);
+    _log("chmod(\"%s\", %o) = %d\n", real_path, mode, result);
 
     return result;
 }
@@ -102,7 +105,7 @@ int chown(const char* path, uid_t owner, gid_t group)
     origin_function = dlsym(RTLD_NEXT, "chown");
     int result = (*origin_function)(path, owner, group);
 
-    _log("[logger] chown(\"%s\", %d, %d) = %d\n", real_path, owner, group, result);
+    _log("chown(\"%s\", %d, %d) = %d\n", real_path, owner, group, result);
 
     return result;
 }
@@ -116,7 +119,7 @@ int close(int fildes)
     origin_function = dlsym(RTLD_NEXT, "close");
     int result = (*origin_function)(fildes);
 
-    _log("[logger] close(\"%s\") = %d\n", fd_path, result);
+    _log("close(\"%s\") = %d\n", fd_path, result);
 
     return result;
 }
@@ -130,7 +133,7 @@ int creat(const char* path, mode_t mode)
     origin_function = dlsym(RTLD_NEXT, "creat");
     int result = (*origin_function)(path, mode);
 
-    _log("[logger] creat(\"%s\", %o) = %d\n", real_path, mode, result);
+    _log("creat(\"%s\", %o) = %d\n", real_path, mode, result);
 
     return result;
 }
@@ -144,7 +147,7 @@ int fclose(FILE* stream)
     origin_function = dlsym(RTLD_NEXT, "fclose");
     int result = (*origin_function)(stream);
 
-    _log("[logger] fclose(\"%s\") = %d\n", file_path, result);
+    _log("fclose(\"%s\") = %d\n", file_path, result);
 
     return result;
 }
@@ -158,7 +161,7 @@ FILE* fopen(const char* pathname, const char* mode)
     origin_function = dlsym(RTLD_NEXT, "fopen");
     FILE* result = (*origin_function)(pathname, mode);
 
-    _log("[logger] fopen(\"%s\", \"%s\") = %p\n", real_path, mode, result);
+    _log("fopen(\"%s\", \"%s\") = %p\n", real_path, mode, result);
 
     return result;
 }
@@ -174,7 +177,7 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
     char buffer[32] = { '\0' };
     _check((char*)ptr, buffer);
 
-    _log("[logger] fread(\"%s\", %lu, %lu, \"%s\") = %lu\n", buffer, size, nmemb, file_path, result);
+    _log("fread(\"%s\", %lu, %lu, \"%s\") = %lu\n", buffer, size, nmemb, file_path, result);
 
     return result;
 }
@@ -191,7 +194,7 @@ size_t fwrite(const void* ptr, size_t size, size_t nmemb, FILE* stream)
     char buffer[32] = { '\0' };
     _check((char*)ptr, buffer);
 
-    _log("[logger] fwrite(\"%s\", %lu, %lu, \"%s\") = %lu\n", buffer, size, nmemb, file_path, result);
+    _log("fwrite(\"%s\", %lu, %lu, \"%s\") = %lu\n", buffer, size, nmemb, file_path, result);
 
     return result;
 }
@@ -215,7 +218,7 @@ int open(const char* path, int oflag, ...)
     origin_function = dlsym(RTLD_NEXT, "open");
     int result = (*origin_function)(path, oflag, mode);
 
-    _log("[logger] open(\"%s\", %o, %o) = %d\n", real_path, oflag, mode, result);
+    _log("open(\"%s\", %o, %o) = %d\n", real_path, oflag, mode, result);
 
     return result;
 }
@@ -232,7 +235,7 @@ ssize_t read(int fildes, void* buf, size_t nbyte)
     char buffer[32] = { '\0' };
     _check((char*)buf, buffer);
 
-    _log("[logger] read(\"%s\", \"%s\", %lu) = %lu\n", fd_path, buffer, nbyte, result);
+    _log("read(\"%s\", \"%s\", %lu) = %lu\n", fd_path, buffer, nbyte, result);
 
     return result;
 }
@@ -246,7 +249,7 @@ int remove(const char* pathname)
     origin_function = dlsym(RTLD_NEXT, "remove");
     int result = (*origin_function)(pathname);
 
-    _log("[logger] remove(\"%s\") = %d\n", real_path, result);
+    _log("remove(\"%s\") = %d\n", real_path, result);
 
     return result;
 }
@@ -262,7 +265,7 @@ int rename(const char* old, const char* new)
     origin_function = dlsym(RTLD_NEXT, "rename");
     int result = (*origin_function)(old, new);
 
-    _log("[logger] rename(\"%s\", \"%s\") = %d\n", real_path_1, real_path_2, result);
+    _log("rename(\"%s\", \"%s\") = %d\n", real_path_1, real_path_2, result);
 
     return result;
 }
@@ -273,7 +276,7 @@ FILE* tmpfile(void)
     origin_function = dlsym(RTLD_NEXT, "tmpfile");
     FILE* result = (*origin_function)();
 
-    _log("[logger] tmpfile() = %p\n", result);
+    _log("tmpfile() = %p\n", result);
 
     return result;
 }
@@ -290,7 +293,7 @@ ssize_t write(int fildes, const void* buf, size_t nbyte)
     char buffer[33] = { '\0' };
     _check((char*)buf, buffer);
 
-    _log("[logger] write(\"%s\", \"%s\", %lu) = %lu\n", fd_path, buffer, nbyte, result);
+    _log("write(\"%s\", \"%s\", %lu) = %lu\n", fd_path, buffer, nbyte, result);
 
     return result;
 }
