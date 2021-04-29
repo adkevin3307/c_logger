@@ -56,7 +56,7 @@ void _get_real_path(const char* path, char real_path[])
     exist = realpath(path, real_path);
 
     if (exist == NULL) {
-        memcpy(real_path, path, strlen(path));
+        strcpy(real_path, path);
     }
 }
 
