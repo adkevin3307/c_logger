@@ -9,6 +9,7 @@
 #include <limits.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 #define STRLEN 1024
 
@@ -34,6 +35,18 @@ void _log(const char* format, ...)
     va_start(arg, format);
     vfprintf(output, format, arg);
     va_end(arg);
+}
+
+void _check(char* buffer, char result[])
+{
+    for (int i = 0; i < strlen(buffer) + 1 && i < 32; i++) {
+        if (isprint(buffer[i])) {
+            result[i] = buffer[i];
+        }
+        else {
+            result[i] = '.';
+        }
+    }
 }
 
 void _get_real_path(const char* path, char real_path[])
@@ -158,7 +171,10 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
     size_t (*origin_function)(void*, size_t, size_t, FILE*) = dlsym(RTLD_NEXT, "fread");
     size_t result = (*origin_function)(ptr, size, nmemb, stream);
 
-    _log("fread(\"%s\", %lu, %lu, \"%s\") = %lu\n", (char*)ptr, size, nmemb, file_path, result);
+    char buffer[32] = { '\0' };
+    _check((char*)ptr, buffer);
+
+    _log("fread(\"%s\", %lu, %lu, \"%s\") = %lu\n", buffer, size, nmemb, file_path, result);
 
     return result;
 }
@@ -172,7 +188,10 @@ size_t fwrite(const void* ptr, size_t size, size_t nmemb, FILE* stream)
     origin_function = dlsym(RTLD_NEXT, "fwrite");
     size_t result = (*origin_function)(ptr, size, nmemb, stream);
 
-    _log("fwrite(\"%s\", %lu, %lu, \"%s\") = %lu\n", (char*)ptr, size, nmemb, file_path, result);
+    char buffer[32] = { '\0' };
+    _check((char*)ptr, buffer);
+
+    _log("fwrite(\"%s\", %lu, %lu, \"%s\") = %lu\n", buffer, size, nmemb, file_path, result);
 
     return result;
 }
@@ -196,7 +215,7 @@ int open(const char* path, int oflag, ...)
     origin_function = dlsym(RTLD_NEXT, "open");
     int result = (*origin_function)(path, oflag, mode);
 
-    _log("open(\"%s\", %d, %d) = %d\n", real_path, oflag, mode, result);
+    _log("open(\"%s\", %o, %o) = %d\n", real_path, oflag, mode, result);
 
     return result;
 }
@@ -210,7 +229,10 @@ ssize_t read(int fildes, void* buf, size_t nbyte)
     origin_function = dlsym(RTLD_NEXT, "read");
     ssize_t result = (*origin_function)(fildes, buf, nbyte);
 
-    _log("read(\"%s\", \"%s\", %lu) = %lu\n", fd_path, (char*)buf, nbyte, result);
+    char buffer[32] = { '\0' };
+    _check((char*)buf, buffer);
+
+    _log("read(\"%s\", \"%s\", %lu) = %lu\n", fd_path, buffer, nbyte, result);
 
     return result;
 }
@@ -265,7 +287,10 @@ ssize_t write(int fildes, const void* buf, size_t nbyte)
     origin_function = dlsym(RTLD_NEXT, "write");
     ssize_t result = (*origin_function)(fildes, buf, nbyte);
 
-    _log("write(\"%s\", \"%s\", %lu) = %lu\n", fd_path, (char*)buf, nbyte, result);
+    char buffer[33] = { '\0' };
+    _check((char*)buf, buffer);
+
+    _log("write(\"%s\", \"%s\", %lu) = %lu\n", fd_path, buffer, nbyte, result);
 
     return result;
 }
