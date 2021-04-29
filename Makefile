@@ -1,26 +1,38 @@
+EXE = logger
 EXE_SO = logger.so
 
 OBJ_DIR = obj
 TRASH = .cache
 
-SOURCES = $(wildcard *.c)
-OBJS = $(addprefix $(OBJ_DIR)/, $(addsuffix .o, $(basename $(notdir $(SOURCES)))))
+SOURCES = hw2.c
+SOURCES_SO = logger.c
 
-CFLAGS_SO = -Wall -O2 -shared -fPIC
+OBJS = $(addprefix $(OBJ_DIR)/, $(patsubst %.c, %.o, $(notdir $(SOURCES))))
+OBJS_SO = $(addprefix $(OBJ_DIR)/, $(patsubst %.c, %.o, $(notdir $(SOURCES_SO))))
 
-LIBS = -ldl
+CFLAGS = -Wall -O2
+CFLAGS_SO = -shared -fPIC
 
-all: create_object_directory $(EXE_SO)
+LIBS =
+LIBS_SO = -ldl
+
+all: create_object_directory $(EXE) $(EXE_SO)
 	@echo Compile Success
 
 create_object_directory:
 	mkdir -p $(OBJ_DIR)
 
-$(OBJ_DIR)/%.o: %.c
-	$(CC) $(CFLAGS_SO) -c -o $@ $<
+$(OBJ_DIR)/hw2.o: $(SOURCES)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-$(EXE_SO): $(OBJS)
-	$(CC) $(CFLAGS_SO) -o $@ $^ $(LIBS)
+$(OBJ_DIR)/logger.o: $(SOURCES_SO)
+	$(CC) $(CFLAGS) $(CFLAGS_SO) -c -o $@ $<
+
+$(EXE): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
+
+$(EXE_SO): $(OBJS_SO)
+	$(CC) $(CFLAGS) $(CFLAGS_SO) -o $@ $^ $(LIBS_SO)
 
 clean:
-	rm -rf $(EXE_SO) $(OBJ_DIR) $(TRASH)
+	rm -rf $(EXE) $(EXE_SO) $(OBJ_DIR) $(TRASH)
