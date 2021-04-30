@@ -13,30 +13,30 @@
 
 #define STRLEN PATH_MAX
 
-static FILE* output = NULL;
+static FILE* monitor = NULL;
 
 void _log(const char* partial_format, ...)
 {
     char format[STRLEN] = { '\0' };
     sprintf(format, "[logger] %s", partial_format);
 
-    if (output == NULL) {
+    if (monitor == NULL) {
         char* monitor_env = getenv("MONITOR");
 
         if (monitor_env) {
             FILE* (*origin_fopen)(const char*, const char*) = dlsym(RTLD_NEXT, "fopen");
 
-            output = (*origin_fopen)(monitor_env, "w");
+            monitor = (*origin_fopen)(monitor_env, "w");
         }
         else {
-            output = stderr;
+            monitor = stderr;
         }
     }
 
     va_list arg;
 
     va_start(arg, partial_format);
-    vfprintf(output, format, arg);
+    vfprintf(monitor, format, arg);
     va_end(arg);
 }
 
