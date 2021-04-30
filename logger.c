@@ -174,7 +174,7 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
     size_t (*origin_function)(void*, size_t, size_t, FILE*) = dlsym(RTLD_NEXT, "fread");
     size_t result = (*origin_function)(ptr, size, nmemb, stream);
 
-    char buffer[32] = { '\0' };
+    char buffer[33] = { '\0' };
     _check((char*)ptr, buffer);
 
     _log("fread(\"%s\", %lu, %lu, \"%s\") = %lu\n", buffer, size, nmemb, file_path, result);
@@ -191,7 +191,7 @@ size_t fwrite(const void* ptr, size_t size, size_t nmemb, FILE* stream)
     origin_function = dlsym(RTLD_NEXT, "fwrite");
     size_t result = (*origin_function)(ptr, size, nmemb, stream);
 
-    char buffer[32] = { '\0' };
+    char buffer[33] = { '\0' };
     _check((char*)ptr, buffer);
 
     _log("fwrite(\"%s\", %lu, %lu, \"%s\") = %lu\n", buffer, size, nmemb, file_path, result);
@@ -232,7 +232,7 @@ ssize_t read(int fildes, void* buf, size_t nbyte)
     origin_function = dlsym(RTLD_NEXT, "read");
     ssize_t result = (*origin_function)(fildes, buf, nbyte);
 
-    char buffer[32] = { '\0' };
+    char buffer[33] = { '\0' };
     _check((char*)buf, buffer);
 
     _log("read(\"%s\", \"%s\", %lu) = %lu\n", fd_path, buffer, nbyte, result);
