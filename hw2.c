@@ -24,17 +24,17 @@ int main(int argc, char** argv)
 
                 break;
             default:
-                printf("usage: ./logger [-o file] [-p sopath] [--] cmd [cmd args ...]\n");
-                printf("\t-p: set the path to logger.so, default = ./logger.so\n");
-                printf("\t-o: print output to file, print to \"stderr\" if no file specified\n");
-                printf("\t--: separate the arguments for logger and for the command\n");
+                fprintf(stderr, "usage: ./logger [-o file] [-p sopath] [--] cmd [cmd args ...]\n");
+                fprintf(stderr, "\t-p: set the path to logger.so, default = ./logger.so\n");
+                fprintf(stderr, "\t-o: print output to file, print to \"stderr\" if no file specified\n");
+                fprintf(stderr, "\t--: separate the arguments for logger and for the command\n");
 
                 return 0;
         }
     }
 
     if (optind >= argc) {
-        printf("no command given.\n");
+        fprintf(stderr, "no command given.\n");
 
         return 0;
     }
