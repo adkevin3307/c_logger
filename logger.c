@@ -41,9 +41,9 @@ void _log(const char* partial_format, ...)
     va_end(arg);
 }
 
-void _check(char* buffer, char result[])
+void _check(char* buffer, char result[], size_t max_length)
 {
-    for (int i = 0; i < strlen(buffer) && i < 32; i++) {
+    for (size_t i = 0; i < 32 && i < max_length && i < strlen(buffer); i++) {
         result[i] = (isprint(buffer[i]) ? buffer[i] : '.');
     }
 }
@@ -171,7 +171,7 @@ size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
     size_t result = (*origin_function)(ptr, size, nmemb, stream);
 
     char buffer[BUFFERLEN] = { '\0' };
-    _check((char*)ptr, buffer);
+    _check((char*)ptr, buffer, nmemb);
 
     _log("fread(\"%s\", %lu, %lu, \"%s\") = %lu\n", buffer, size, nmemb, file_path, result);
 
@@ -188,7 +188,7 @@ size_t fwrite(const void* ptr, size_t size, size_t nmemb, FILE* stream)
     size_t result = (*origin_function)(ptr, size, nmemb, stream);
 
     char buffer[BUFFERLEN] = { '\0' };
-    _check((char*)ptr, buffer);
+    _check((char*)ptr, buffer, nmemb);
 
     _log("fwrite(\"%s\", %lu, %lu, \"%s\") = %lu\n", buffer, size, nmemb, file_path, result);
 
@@ -229,7 +229,7 @@ ssize_t read(int fildes, void* buf, size_t nbyte)
     ssize_t result = (*origin_function)(fildes, buf, nbyte);
 
     char buffer[BUFFERLEN] = { '\0' };
-    _check((char*)buf, buffer);
+    _check((char*)buf, buffer, nbyte);
 
     _log("read(\"%s\", \"%s\", %lu) = %lu\n", fd_path, buffer, nbyte, result);
 
@@ -287,7 +287,7 @@ ssize_t write(int fildes, const void* buf, size_t nbyte)
     ssize_t result = (*origin_function)(fildes, buf, nbyte);
 
     char buffer[BUFFERLEN] = { '\0' };
-    _check((char*)buf, buffer);
+    _check((char*)buf, buffer, nbyte);
 
     _log("write(\"%s\", \"%s\", %lu) = %lu\n", fd_path, buffer, nbyte, result);
 
