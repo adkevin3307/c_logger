@@ -44,12 +44,7 @@ void _log(const char* partial_format, ...)
 void _check(char* buffer, char result[])
 {
     for (int i = 0; i < strlen(buffer) && i < 32; i++) {
-        if (isprint(buffer[i])) {
-            result[i] = buffer[i];
-        }
-        else {
-            result[i] = '.';
-        }
+        result[i] = (isprint(buffer[i]) ? buffer[i] : '.');
     }
 }
 
