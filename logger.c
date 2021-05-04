@@ -134,6 +134,20 @@ int creat(const char* path, mode_t mode)
     return result;
 }
 
+int creat64(const char* path, mode_t mode)
+{
+    char real_path[STRLEN] = { '\0' };
+    _get_real_path(path, real_path);
+
+    int (*origin_function)(const char*, mode_t);
+    origin_function = dlsym(RTLD_NEXT, "creat64");
+    int result = (*origin_function)(path, mode);
+
+    _log("creat(\"%s\", %o) = %d\n", real_path, mode, result);
+
+    return result;
+}
+
 int fclose(FILE* stream)
 {
     char file_path[STRLEN] = { '\0' };
@@ -155,6 +169,20 @@ FILE* fopen(const char* pathname, const char* mode)
 
     FILE* (*origin_function)(const char*, const char*);
     origin_function = dlsym(RTLD_NEXT, "fopen");
+    FILE* result = (*origin_function)(pathname, mode);
+
+    _log("fopen(\"%s\", \"%s\") = %p\n", real_path, mode, result);
+
+    return result;
+}
+
+FILE* fopen64(const char* pathname, const char* mode)
+{
+    char real_path[STRLEN] = { '\0' };
+    _get_real_path(pathname, real_path);
+
+    FILE* (*origin_function)(const char*, const char*);
+    origin_function = dlsym(RTLD_NEXT, "fopen64");
     FILE* result = (*origin_function)(pathname, mode);
 
     _log("fopen(\"%s\", \"%s\") = %p\n", real_path, mode, result);
@@ -219,6 +247,30 @@ int open(const char* path, int oflag, ...)
     return result;
 }
 
+int open64(const char* path, int oflag, ...)
+{
+    char real_path[STRLEN] = { '\0' };
+    _get_real_path(path, real_path);
+
+    int mode = 0;
+
+    if (__OPEN_NEEDS_MODE(oflag)) {
+        va_list arg;
+
+        va_start(arg, oflag);
+        mode = va_arg(arg, int);
+        va_end(arg);
+    }
+
+    int (*origin_function)(const char*, int, ...);
+    origin_function = dlsym(RTLD_NEXT, "open64");
+    int result = (*origin_function)(path, oflag, mode);
+
+    _log("open(\"%s\", %o, %o) = %d\n", real_path, oflag, mode, result);
+
+    return result;
+}
+
 ssize_t read(int fildes, void* buf, size_t nbyte)
 {
     char fd_path[STRLEN] = { '\0' };
@@ -270,6 +322,17 @@ FILE* tmpfile(void)
 {
     FILE* (*origin_function)(void);
     origin_function = dlsym(RTLD_NEXT, "tmpfile");
+    FILE* result = (*origin_function)();
+
+    _log("tmpfile() = %p\n", result);
+
+    return result;
+}
+
+FILE* tmpfile64(void)
+{
+    FILE* (*origin_function)(void);
+    origin_function = dlsym(RTLD_NEXT, "tmpfile64");
     FILE* result = (*origin_function)();
 
     _log("tmpfile() = %p\n", result);
