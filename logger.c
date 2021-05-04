@@ -30,7 +30,16 @@ void _log(const char* partial_format, ...)
             monitor = (*origin_fopen)(monitor_env, "w");
         }
         else {
-            monitor = stderr;
+            int fd[2];
+
+            if (pipe(fd) < 0) {
+                perror("cannot create pipe");
+
+                exit(EXIT_FAILURE);
+            }
+
+            dup2(STDERR_FILENO, fd[0]);
+            monitor = fdopen(fd[0], "w");
         }
     }
 
@@ -63,12 +72,6 @@ void _get_fd_path(int fd, char fd_path[])
 {
     char path[STRLEN] = { '\0' };
     sprintf(path, "/proc/self/fd/%d", fd);
-
-    if (readlink(path, fd_path, STRLEN) == -1) {
-        perror("_get_fd_path error\n");
-
-        exit(EXIT_FAILURE);
-    }
 }
 
 void _get_file_path(FILE* stream, char file_path[])
@@ -143,7 +146,7 @@ int creat64(const char* path, mode_t mode)
     origin_function = dlsym(RTLD_NEXT, "creat64");
     int result = (*origin_function)(path, mode);
 
-    _log("creat(\"%s\", %o) = %d\n", real_path, mode, result);
+    _log("creat64(\"%s\", %o) = %d\n", real_path, mode, result);
 
     return result;
 }
@@ -185,7 +188,7 @@ FILE* fopen64(const char* pathname, const char* mode)
     origin_function = dlsym(RTLD_NEXT, "fopen64");
     FILE* result = (*origin_function)(pathname, mode);
 
-    _log("fopen(\"%s\", \"%s\") = %p\n", real_path, mode, result);
+    _log("fopen64(\"%s\", \"%s\") = %p\n", real_path, mode, result);
 
     return result;
 }
@@ -266,7 +269,7 @@ int open64(const char* path, int oflag, ...)
     origin_function = dlsym(RTLD_NEXT, "open64");
     int result = (*origin_function)(path, oflag, mode);
 
-    _log("open(\"%s\", %o, %o) = %d\n", real_path, oflag, mode, result);
+    _log("open64(\"%s\", %o, %o) = %d\n", real_path, oflag, mode, result);
 
     return result;
 }
@@ -335,7 +338,7 @@ FILE* tmpfile64(void)
     origin_function = dlsym(RTLD_NEXT, "tmpfile64");
     FILE* result = (*origin_function)();
 
-    _log("tmpfile() = %p\n", result);
+    _log("tmpfile64() = %p\n", result);
 
     return result;
 }
