@@ -39,6 +39,8 @@ void _log(const char* partial_format, ...)
             }
 
             dup2(STDERR_FILENO, fd[0]);
+            dup2(STDERR_FILENO, fd[1]);
+
             monitor = fdopen(fd[0], "w");
         }
     }
@@ -72,6 +74,8 @@ void _get_fd_path(int fd, char fd_path[])
 {
     char path[STRLEN] = { '\0' };
     sprintf(path, "/proc/self/fd/%d", fd);
+
+    if (readlink(path, fd_path, STRLEN)) return;
 }
 
 void _get_file_path(FILE* stream, char file_path[])
@@ -193,7 +197,7 @@ FILE* fopen64(const char* pathname, const char* mode)
     return result;
 }
 
-size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream)
+size_t fread(void* ptr, size_t size, size_t nmemb, FILE* stream)
 {
     char file_path[STRLEN] = { '\0' };
     _get_file_path(stream, file_path);
