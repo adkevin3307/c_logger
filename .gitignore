@@ -2,3 +2,4 @@ obj/
 logger
 logger.so
 *.txt
+test*
