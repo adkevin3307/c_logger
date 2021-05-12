@@ -4,7 +4,7 @@ EXE_SO = logger.so
 OBJ_DIR = obj
 TRASH = .cache
 
-SOURCES = hw2.c
+SOURCES = main.c
 SOURCES_SO = logger.c
 
 OBJS = $(addprefix $(OBJ_DIR)/, $(patsubst %.c, %.o, $(notdir $(SOURCES))))
@@ -22,7 +22,7 @@ all: create_object_directory $(EXE) $(EXE_SO)
 create_object_directory:
 	mkdir -p $(OBJ_DIR)
 
-$(OBJ_DIR)/hw2.o: $(SOURCES)
+$(OBJ_DIR)/main.o: $(SOURCES)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 $(OBJ_DIR)/logger.o: $(SOURCES_SO)
